@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -86,6 +87,15 @@ const CutoffsPage = () => {
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
             Explore cutoff percentages, GPA requirements, and acceptance rates for various universities and programs in Gujarat, India.
           </p>
+          <div className="mt-6">
+            <Button
+              onClick={() => window.location.href = '/engineering-cutoffs'}
+              variant="outline"
+              className="bg-primary text-white hover:bg-primary/90"
+            >
+              View Engineering College Cutoffs
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}

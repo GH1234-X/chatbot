@@ -9,6 +9,7 @@ import HomePage from "./pages/home";
 import ChatPage from "./pages/chat";
 import ResourcesPage from "./pages/resources";
 import CutoffsPage from "./pages/cutoffs";
+import EngineeringCutoffsPage from "./pages/engineering-cutoffs";
 import ScholarshipsPage from "./pages/scholarships";
 import AboutPage from "./pages/about";
 import NotFound from "./pages/not-found";
@@ -23,7 +24,8 @@ function Router() {
           <Route path="/" component={HomePage} />
           <Route path="/chat" component={ChatPage} />
           <Route path="/resources" component={ResourcesPage} />
-          <Route path="/resources/cutoffs" component={CutoffsPage} />
+          <Route path="/cutoffs" component={CutoffsPage} />
+          <Route path="/engineering-cutoffs" component={EngineeringCutoffsPage} />
           <Route path="/resources/scholarships" component={ScholarshipsPage} />
           <Route path="/about" component={AboutPage} />
           <Route component={NotFound} />

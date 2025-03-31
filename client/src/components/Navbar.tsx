@@ -90,6 +90,15 @@ const Navbar = () => {
                     Resources
                   </a>
                 </Link>
+                <Link href="/engineering-cutoffs">
+                  <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    location === "/engineering-cutoffs" 
+                      ? "border-primary text-gray-900" 
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  }`}>
+                    Engineering Cutoffs
+                  </a>
+                </Link>
               </div>
             </div>
             <div className="hidden md:ml-6 md:flex md:items-center">
