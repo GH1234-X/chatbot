@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import AuthModal from "@/components/AuthModal";
+import FirebaseAuthInstructions from "@/components/FirebaseAuthInstructions";
 
 const HomePage = () => {
   const { currentUser } = useAuth();
@@ -11,6 +12,9 @@ const HomePage = () => {
 
   return (
     <div className="flex-grow">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <FirebaseAuthInstructions />
+      </div>
       {/* Hero Section */}
       <div className="relative bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">

@@ -93,11 +93,23 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin }: AuthModalProps) => 
       });
       onClose();
     } catch (error: any) {
-      toast({
-        title: "Google login failed",
-        description: error.message || "Failed to login with Google",
-        variant: "destructive",
-      });
+      console.error("Error logging in with Google:", error);
+      if (error.code === "auth/unauthorized-domain") {
+        toast({
+          title: "Google login failed",
+          description: "You need to add this domain to your Firebase authorized domains. Please check the console for instructions.",
+          variant: "destructive",
+        });
+        console.info("To fix this error, please add the following domain to your Firebase authorized domains:");
+        console.info(window.location.hostname);
+        console.info("Instructions: Go to Firebase Console > Authentication > Settings > Authorized domains > Add domain");
+      } else {
+        toast({
+          title: "Google login failed",
+          description: error.message || "Failed to login with Google",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
