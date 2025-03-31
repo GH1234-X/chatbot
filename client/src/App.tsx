@@ -19,9 +19,9 @@ import { AuthProvider } from "./context/AuthContext";
 
 function Router() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/chat" component={ChatPage} />
