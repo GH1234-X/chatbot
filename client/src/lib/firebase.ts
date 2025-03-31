@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp, enableIndexedDbPersistence } from "firebase/firestore";
 import { apiRequest } from "./queryClient";
 
 const firebaseConfig = {
@@ -24,6 +24,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
+
+// Enable offline persistence (helpful for better performance and offline support)
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    // Multiple tabs open, persistence can only be enabled in one tab at a time
+    console.warn('Firebase persistence failed: multiple tabs open');
+  } else if (err.code === 'unimplemented') {
+    // The current browser does not support all of the features required for persistence
+    console.warn('Firebase persistence not supported by this browser');
+  }
+});
 
 // Register user with email and password
 export const registerWithEmailAndPassword = async (
@@ -251,39 +262,87 @@ export const saveChatMessage = async (message: Omit<FirebaseChatMessage, 'id' | 
 export const getChatMessages = async (userId: string): Promise<FirebaseChatMessage[]> => {
   try {
     const chatMessagesRef = collection(db, "chatMessages");
-    const q = query(
-      chatMessagesRef, 
-      where("userId", "==", userId),
-      orderBy("timestamp", "asc")
-    );
     
-    const querySnapshot = await getDocs(q);
-    const messages: FirebaseChatMessage[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      // Convert Firebase Timestamp to Date if it exists
-      let messageDate: Date;
-      if (data.timestamp && typeof data.timestamp.toDate === 'function') {
-        messageDate = data.timestamp.toDate();
-      } else if (data.timestamp && data.timestamp.seconds) {
-        // Handle Firestore timestamp that might be serialized
-        messageDate = new Date(data.timestamp.seconds * 1000);
-      } else {
-        // Fallback to current date if no timestamp
-        messageDate = new Date();
-      }
+    // Try to use a composite query with ordering
+    try {
+      const q = query(
+        chatMessagesRef, 
+        where("userId", "==", userId),
+        orderBy("timestamp", "asc")
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const messages: FirebaseChatMessage[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        // Convert Firebase Timestamp to Date if it exists
+        let messageDate: Date;
+        if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+          messageDate = data.timestamp.toDate();
+        } else if (data.timestamp && data.timestamp.seconds) {
+          // Handle Firestore timestamp that might be serialized
+          messageDate = new Date(data.timestamp.seconds * 1000);
+        } else {
+          // Fallback to current date if no timestamp
+          messageDate = new Date();
+        }
 
-      messages.push({
-        id: doc.id,
-        content: data.content,
-        isUserMessage: data.isUserMessage,
-        userId: data.userId,
-        timestamp: messageDate,
+        messages.push({
+          id: doc.id,
+          content: data.content,
+          isUserMessage: data.isUserMessage,
+          userId: data.userId,
+          timestamp: messageDate,
+        });
       });
-    });
-    
-    return messages;
+      
+      return messages;
+    } catch (indexError) {
+      // If we get a failed-precondition error, it likely means we need an index
+      // For now, let's try a simpler query without ordering
+      console.warn("Composite query failed, trying simpler query", indexError);
+      
+      const simpleQuery = query(
+        chatMessagesRef, 
+        where("userId", "==", userId)
+      );
+      
+      const querySnapshot = await getDocs(simpleQuery);
+      const messages: FirebaseChatMessage[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        // Convert Firebase Timestamp to Date if it exists
+        let messageDate: Date;
+        if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+          messageDate = data.timestamp.toDate();
+        } else if (data.timestamp && data.timestamp.seconds) {
+          // Handle Firestore timestamp that might be serialized
+          messageDate = new Date(data.timestamp.seconds * 1000);
+        } else {
+          // Fallback to current date if no timestamp
+          messageDate = new Date();
+        }
+        
+        messages.push({
+          id: doc.id,
+          content: data.content,
+          isUserMessage: data.isUserMessage,
+          userId: data.userId,
+          timestamp: messageDate,
+        });
+      });
+      
+      // Sort messages by timestamp client-side
+      messages.sort((a, b) => {
+        const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
+        const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
+        return timeA - timeB;
+      });
+      
+      return messages;
+    }
   } catch (error) {
     console.error("Error fetching chat messages from Firebase:", error);
     throw error;

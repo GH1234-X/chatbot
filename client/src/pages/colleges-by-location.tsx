@@ -84,13 +84,13 @@ const CollegesByLocation = () => {
       );
     }
     
-    if (selectedDistrict) {
+    if (selectedDistrict && selectedDistrict !== "all") {
       results = results.filter(
         college => college.district === selectedDistrict
       );
     }
     
-    if (selectedType) {
+    if (selectedType && selectedType !== "all") {
       results = results.filter(
         college => college.type === selectedType
       );
@@ -113,8 +113,8 @@ const CollegesByLocation = () => {
 
   const resetFilters = () => {
     setSearchTerm("");
-    setSelectedDistrict("");
-    setSelectedType("");
+    setSelectedDistrict("all");
+    setSelectedType("all");
   };
 
   return (
@@ -143,7 +143,7 @@ const CollegesByLocation = () => {
                 <SelectValue placeholder="Select District" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Districts</SelectItem>
+                <SelectItem value="all">All Districts</SelectItem>
                 {gujaratDistricts.map(district => (
                   <SelectItem key={district} value={district}>
                     {district}
@@ -159,7 +159,7 @@ const CollegesByLocation = () => {
                 <SelectValue placeholder="College Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 {collegeTypes.map(type => (
                   <SelectItem key={type} value={type}>
                     {type}
