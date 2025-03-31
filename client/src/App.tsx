@@ -11,6 +11,7 @@ import ResourcesPage from "./pages/resources";
 import EngineeringCutoffsPage from "./pages/engineering-cutoffs";
 import ScholarshipsPage from "./pages/scholarships";
 import CollegesByLocationPage from "./pages/colleges-by-location";
+import ProfilePage from "./pages/profile";
 import AboutPage from "./pages/about";
 import NotFound from "./pages/not-found";
 import { AuthProvider } from "./context/AuthContext";
@@ -27,6 +28,7 @@ function Router() {
           <Route path="/engineering-cutoffs" component={EngineeringCutoffsPage} />
           <Route path="/resources/scholarships" component={ScholarshipsPage} />
           <Route path="/colleges-by-location" component={CollegesByLocationPage} />
+          <Route path="/profile" component={ProfilePage} />
           <Route path="/about" component={AboutPage} />
           <Route component={NotFound} />
         </Switch>

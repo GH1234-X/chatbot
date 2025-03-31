@@ -125,7 +125,9 @@ const Navbar = () => {
                   <DropdownMenuContent>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <Link href="/profile">
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -204,12 +206,14 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="mt-3 space-y-1">
-                <Button
-                  variant="ghost"
-                  className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                >
-                  Profile
-                </Button>
+                <Link href="/profile">
+                  <Button
+                    variant="ghost"
+                    className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                  >
+                    Profile
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"

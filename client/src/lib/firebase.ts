@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   onAuthStateChanged,
+  updateProfile as firebaseUpdateProfile,
   User as FirebaseUser
 } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp, enableIndexedDbPersistence } from "firebase/firestore";
@@ -345,6 +346,17 @@ export const getChatMessages = async (userId: string): Promise<FirebaseChatMessa
     }
   } catch (error) {
     console.error("Error fetching chat messages from Firebase:", error);
+    throw error;
+  }
+};
+
+// Update user profile
+export const updateProfile = async (user: FirebaseUser, profileData: { displayName?: string, photoURL?: string }) => {
+  try {
+    await firebaseUpdateProfile(user, profileData);
+    return user;
+  } catch (error) {
+    console.error("Error updating profile:", error);
     throw error;
   }
 };
