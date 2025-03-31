@@ -1,38 +1,52 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "wouter";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { toast } from "@/hooks/use-toast";
 import { populateColleges } from "@/utils/populate-colleges";
-import { 
-  db, 
-  FirebaseCollegeCutoff, 
-  FirebaseCollege,
-  addCollege,
-  getColleges
-} from "@/lib/firebase";
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, serverTimestamp } from "firebase/firestore";
+import { FirebaseCollegeCutoff } from "@/lib/firebase";
+import { serverTimestamp } from "firebase/firestore";
 
-// Admin dashboard component for data management
+
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const [, setLocation] = useLocation();
+  const [saving, setSaving] = useState(false);
 
-  // For demonstration purposes, we'll consider admin emails
-  const isAdmin = currentUser?.email === "admin@example.com" || 
-                 currentUser?.email === "parinp157@gmail.com";
+  // Admin states
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminName, setNewAdminName] = useState("");
+  const [adminRole, setAdminRole] = useState("editor");
+
+  // College states
+  const [collegeName, setCollegeName] = useState("");
+  const [collegeLocation, setCollegeLocation] = useState("");
+  const [collegeDistrict, setCollegeDistrict] = useState("");
+  const [collegeType, setCollegeType] = useState("");
+  const [collegeWebsite, setCollegeWebsite] = useState("");
+  const [collegeContact, setCollegeContact] = useState("");
+  const [collegeCourses, setCollegeCourses] = useState("");
+  const [collegeDescription, setCollegeDescription] = useState("");
 
   // States for scholarships form
   const [scholarshipName, setScholarshipName] = useState("");
@@ -56,39 +70,97 @@ const AdminDashboard = () => {
   const [addingScholarship, setAddingScholarship] = useState(false);
   const [addingCutoff, setAddingCutoff] = useState(false);
   const [importingColleges, setImportingColleges] = useState(false);
-
-  // States for college form
-  const [collegeName, setCollegeName] = useState("");
-  const [collegeLocation, setCollegeLocation] = useState("");
-  const [collegeDistrict, setCollegeDistrict] = useState("");
-  const [collegeType, setCollegeType] = useState("");
-  const [collegeWebsite, setCollegeWebsite] = useState("");
-  const [collegeContact, setCollegeContact] = useState("");
-  const [collegeDescription, setCollegeDescription] = useState("");
-  const [collegeCourses, setCollegeCourses] = useState("");
   const [addingCollege, setAddingCollege] = useState(false);
 
-  // Redirect non-admin users
-  useEffect(() => {
-    if (!currentUser) {
-      setLocation("/");
-      return;
-    }
-    
-    if (!isAdmin) {
+
+  const isAdmin = currentUser?.email === "admin@example.com" || 
+                 currentUser?.email === "parinp157@gmail.com";
+
+  if (!isAdmin) {
+    return (
+      <div className="container py-8">
+        <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
+        <p className="mt-2">You do not have permission to access this page.</p>
+      </div>
+    );
+  }
+
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await addDoc(collection(db, "admins"), {
+        email: newAdminEmail,
+        name: newAdminName,
+        role: adminRole,
+        createdAt: new Date(),
+        createdBy: currentUser?.email
+      });
+      setNewAdminEmail("");
+      setNewAdminName("");
+      setAdminRole("editor");
       toast({
-        title: "Access Denied",
-        description: "You don't have permission to access the admin dashboard.",
+        title: "Success!",
+        description: "Admin added successfully.",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Error adding admin:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add admin. Please try again.",
         variant: "destructive"
       });
-      setLocation("/");
     }
-  }, [currentUser, isAdmin, setLocation]);
+    setSaving(false);
+  };
+
+  const handleAddCollege = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await addDoc(collection(db, "colleges"), {
+        name: collegeName,
+        location: collegeLocation,
+        district: collegeDistrict,
+        type: collegeType,
+        website: collegeWebsite,
+        contact: collegeContact,
+        courses: collegeCourses.split(",").map(course => course.trim()),
+        description: collegeDescription,
+        createdAt: new Date(),
+        createdBy: currentUser?.email
+      });
+
+      setCollegeName("");
+      setCollegeLocation("");
+      setCollegeDistrict("");
+      setCollegeType("");
+      setCollegeWebsite("");
+      setCollegeContact("");
+      setCollegeCourses("");
+      setCollegeDescription("");
+
+      toast({
+        title: "Success!",
+        description: "College added successfully.",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Error adding college:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add college. Please try again.",
+        variant: "destructive"
+      });
+    }
+    setSaving(false);
+  };
 
   // Handle scholarship submission
   const handleAddScholarship = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!scholarshipName || !scholarshipProvider || !scholarshipCategory) {
       toast({
         title: "Missing Fields",
@@ -100,7 +172,7 @@ const AdminDashboard = () => {
 
     try {
       setAddingScholarship(true);
-      
+
       // Create scholarship object
       const scholarshipData = {
         name: scholarshipName,
@@ -112,17 +184,17 @@ const AdminDashboard = () => {
         link: scholarshipLink,
         createdAt: serverTimestamp()
       };
-      
+
       // Add to Firestore
       const scholarshipsRef = collection(db, "scholarships");
       await addDoc(scholarshipsRef, scholarshipData);
-      
+
       toast({
         title: "Success!",
         description: "Scholarship added successfully.",
         variant: "default"
       });
-      
+
       // Reset form
       setScholarshipName("");
       setScholarshipProvider("");
@@ -146,7 +218,7 @@ const AdminDashboard = () => {
   // Handle cutoff submission
   const handleAddCutoff = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!university || !program || !gpa) {
       toast({
         title: "Missing Fields",
@@ -158,7 +230,7 @@ const AdminDashboard = () => {
 
     try {
       setAddingCutoff(true);
-      
+
       // Create cutoff object
       const cutoffData: Omit<FirebaseCollegeCutoff, 'id'> = {
         university,
@@ -169,17 +241,17 @@ const AdminDashboard = () => {
         acceptanceRate,
         academicYear
       };
-      
+
       // Add to Firestore
       const cutoffsRef = collection(db, "collegeCutoffs");
       await addDoc(cutoffsRef, cutoffData);
-      
+
       toast({
         title: "Success!",
         description: "College cutoff added successfully.",
         variant: "default"
       });
-      
+
       // Reset form
       setUniversity("");
       setProgram("");
@@ -198,76 +270,13 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle college submission
-  const handleAddCollege = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!collegeName || !collegeLocation || !collegeDistrict || !collegeType) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setAddingCollege(true);
-      
-      // Parse courses string into array
-      const coursesArray = collegeCourses
-        .split(',')
-        .map(course => course.trim())
-        .filter(course => course.length > 0);
-      
-      // Create college object
-      const collegeData: Omit<FirebaseCollege, 'id'> = {
-        name: collegeName,
-        location: collegeLocation,
-        district: collegeDistrict,
-        type: collegeType,
-        website: collegeWebsite || undefined,
-        contactInfo: collegeContact || undefined,
-        courses: coursesArray.length > 0 ? coursesArray : undefined,
-        description: collegeDescription || undefined
-      };
-      
-      // Add to Firestore
-      await addCollege(collegeData);
-      
-      toast({
-        title: "Success!",
-        description: "College added successfully.",
-        variant: "default"
-      });
-      
-      // Reset form
-      setCollegeName("");
-      setCollegeLocation("");
-      setCollegeDistrict("");
-      setCollegeType("");
-      setCollegeWebsite("");
-      setCollegeContact("");
-      setCollegeDescription("");
-      setCollegeCourses("");
-    } catch (error) {
-      console.error("Error adding college:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add college. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setAddingCollege(false);
-    }
-  };
 
   // Handle importing colleges data
   const handleImportColleges = async () => {
     try {
       setImportingColleges(true);
       const addedCount = await populateColleges();
-      
+
       toast({
         title: "Success!",
         description: `Successfully imported ${addedCount} colleges.`,
@@ -285,25 +294,188 @@ const AdminDashboard = () => {
     }
   };
 
-  if (!currentUser || !isAdmin) {
-    return null; // Prevent rendering for non-admin users
-  }
-
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
       <p className="text-gray-500 mb-6">
-        Manage application data including scholarships, college cutoffs, and colleges.
+        Manage application data including administrators, colleges, and more.
       </p>
-      
-      <Tabs defaultValue="scholarships" className="w-full">
+
+      <Tabs defaultValue="admins" className="w-full">
         <TabsList className="grid grid-cols-4 mb-6">
+          <TabsTrigger value="admins">Admins</TabsTrigger>
+          <TabsTrigger value="colleges">Colleges</TabsTrigger>
           <TabsTrigger value="scholarships">Scholarships</TabsTrigger>
           <TabsTrigger value="cutoffs">College Cutoffs</TabsTrigger>
-          <TabsTrigger value="colleges">Colleges</TabsTrigger>
           <TabsTrigger value="import">Data Import</TabsTrigger>
         </TabsList>
-        
+
+        {/* Admins Tab */}
+        <TabsContent value="admins">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Admin</CardTitle>
+              <CardDescription>
+                Add new administrators to manage the platform.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddAdmin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="admin-email">Admin Email</Label>
+                  <Input
+                    id="admin-email"
+                    type="email"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="admin-name">Admin Name</Label>
+                  <Input
+                    id="admin-name"
+                    value={newAdminName}
+                    onChange={(e) => setNewAdminName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="admin-role">Role</Label>
+                  <Select value={adminRole} onValueChange={setAdminRole}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="editor">Editor</SelectItem>
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Adding..." : "Add Admin"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Colleges Tab */}
+        <TabsContent value="colleges">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New College</CardTitle>
+              <CardDescription>
+                Add new colleges to the database.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddCollege} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="college-name">College Name *</Label>
+                  <Input
+                    id="college-name"
+                    value={collegeName}
+                    onChange={(e) => setCollegeName(e.target.value)}
+                    placeholder="Gujarat Technical University"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="college-location">Location *</Label>
+                    <Input
+                      id="college-location"
+                      value={collegeLocation}
+                      onChange={(e) => setCollegeLocation(e.target.value)}
+                      placeholder="Ahmedabad"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="college-district">District *</Label>
+                    <Input
+                      id="college-district"
+                      value={collegeDistrict}
+                      onChange={(e) => setCollegeDistrict(e.target.value)}
+                      placeholder="Ahmedabad"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="college-type">Type *</Label>
+                  <Select value={collegeType} onValueChange={setCollegeType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select college type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="government">Government</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="aided">Government-Aided</SelectItem>
+                      <SelectItem value="deemed">Deemed</SelectItem>
+                      <SelectItem value="autonomous">Autonomous</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="college-website">Website</Label>
+                  <Input
+                    id="college-website"
+                    type="url"
+                    value={collegeWebsite}
+                    onChange={(e) => setCollegeWebsite(e.target.value)}
+                    placeholder="https://www.gtu.ac.in"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="college-contact">Contact Information</Label>
+                  <Input
+                    id="college-contact"
+                    value={collegeContact}
+                    onChange={(e) => setCollegeContact(e.target.value)}
+                    placeholder="Phone, email, etc."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="college-courses">Courses Offered</Label>
+                  <Input
+                    id="college-courses"
+                    value={collegeCourses}
+                    onChange={(e) => setCollegeCourses(e.target.value)}
+                    placeholder="B.Tech, M.Tech, MBA (comma-separated)"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="college-description">Description</Label>
+                  <Textarea
+                    id="college-description"
+                    value={collegeDescription}
+                    onChange={(e) => setCollegeDescription(e.target.value)}
+                    placeholder="Brief description of the college..."
+                  />
+                </div>
+
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Adding..." : "Add College"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Scholarships Tab */}
         <TabsContent value="scholarships">
           <Card>
@@ -326,7 +498,6 @@ const AdminDashboard = () => {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="scholarship-provider">Provider *</Label>
                     <Input 
@@ -338,7 +509,6 @@ const AdminDashboard = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
                     <Label htmlFor="scholarship-amount">Amount</Label>
@@ -349,7 +519,6 @@ const AdminDashboard = () => {
                       placeholder="₹50,000 per year"
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="scholarship-category">Category *</Label>
                     <Select 
@@ -373,7 +542,6 @@ const AdminDashboard = () => {
                     </Select>
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
                     <Label htmlFor="scholarship-deadline">Application Deadline</Label>
@@ -384,7 +552,6 @@ const AdminDashboard = () => {
                       onChange={(e) => setScholarshipDeadline(e.target.value)}
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="scholarship-link">Website/Application Link</Label>
                     <Input 
@@ -396,7 +563,6 @@ const AdminDashboard = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="space-y-2 mb-4">
                   <Label htmlFor="scholarship-eligibility">Eligibility Criteria</Label>
                   <Textarea 
@@ -407,7 +573,6 @@ const AdminDashboard = () => {
                     className="min-h-[100px]"
                   />
                 </div>
-                
                 <Button type="submit" disabled={addingScholarship} className="w-full">
                   {addingScholarship ? "Adding..." : "Add Scholarship"}
                 </Button>
@@ -415,7 +580,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         {/* College Cutoffs Tab */}
         <TabsContent value="cutoffs">
           <Card>
@@ -438,7 +603,6 @@ const AdminDashboard = () => {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="program">Program/Course *</Label>
                     <Input 
@@ -450,7 +614,6 @@ const AdminDashboard = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
@@ -461,7 +624,6 @@ const AdminDashboard = () => {
                       placeholder="India"
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="academic-year">Academic Year</Label>
                     <Select 
@@ -479,7 +641,6 @@ const AdminDashboard = () => {
                     </Select>
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="space-y-2">
                     <Label htmlFor="gpa">GPA/Percentage Required *</Label>
@@ -491,7 +652,6 @@ const AdminDashboard = () => {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="test-scores">Test Scores</Label>
                     <Input 
@@ -501,7 +661,6 @@ const AdminDashboard = () => {
                       placeholder="GUJCET: 90+ / JEE: 95+ percentile"
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="acceptance-rate">Acceptance Rate</Label>
                     <Input 
@@ -512,7 +671,6 @@ const AdminDashboard = () => {
                     />
                   </div>
                 </div>
-                
                 <Button type="submit" disabled={addingCutoff} className="w-full">
                   {addingCutoff ? "Adding..." : "Add College Cutoff"}
                 </Button>
@@ -520,127 +678,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
-        {/* Colleges Tab */}
-        <TabsContent value="colleges">
-          <Card>
-            <CardHeader>
-              <CardTitle>Add New College</CardTitle>
-              <CardDescription>
-                Add a new college or university to the database.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleAddCollege}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="college-name">College Name *</Label>
-                    <Input 
-                      id="college-name" 
-                      value={collegeName}
-                      onChange={(e) => setCollegeName(e.target.value)}
-                      placeholder="Gujarat Technical University"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="college-type">Type *</Label>
-                    <Select 
-                      value={collegeType} 
-                      onValueChange={setCollegeType}
-                      required
-                    >
-                      <SelectTrigger id="college-type">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Government">Government</SelectItem>
-                        <SelectItem value="Private">Private</SelectItem>
-                        <SelectItem value="Government-Aided">Government-Aided</SelectItem>
-                        <SelectItem value="Deemed">Deemed University</SelectItem>
-                        <SelectItem value="Autonomous">Autonomous</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="college-location">Location *</Label>
-                    <Input 
-                      id="college-location" 
-                      value={collegeLocation}
-                      onChange={(e) => setCollegeLocation(e.target.value)}
-                      placeholder="Ahmedabad"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="college-district">District *</Label>
-                    <Input 
-                      id="college-district" 
-                      value={collegeDistrict}
-                      onChange={(e) => setCollegeDistrict(e.target.value)}
-                      placeholder="Ahmedabad"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="college-website">Website</Label>
-                    <Input 
-                      id="college-website" 
-                      value={collegeWebsite}
-                      onChange={(e) => setCollegeWebsite(e.target.value)}
-                      placeholder="https://www.gtu.ac.in"
-                      type="url"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="college-contact">Contact Information</Label>
-                    <Input 
-                      id="college-contact" 
-                      value={collegeContact}
-                      onChange={(e) => setCollegeContact(e.target.value)}
-                      placeholder="+91-79-23267521"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2 mb-4">
-                  <Label htmlFor="college-courses">Courses Offered (comma-separated)</Label>
-                  <Input 
-                    id="college-courses" 
-                    value={collegeCourses}
-                    onChange={(e) => setCollegeCourses(e.target.value)}
-                    placeholder="Engineering, Pharmacy, Management, Computer Applications"
-                  />
-                </div>
-                
-                <div className="space-y-2 mb-4">
-                  <Label htmlFor="college-description">Description</Label>
-                  <Textarea 
-                    id="college-description" 
-                    value={collegeDescription}
-                    onChange={(e) => setCollegeDescription(e.target.value)}
-                    placeholder="Brief description of the college, history, and notable features..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-                
-                <Button type="submit" disabled={addingCollege} className="w-full">
-                  {addingCollege ? "Adding..." : "Add College"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
+
         {/* Data Import Tab */}
         <TabsContent value="import">
           <Card>
@@ -665,9 +703,7 @@ const AdminDashboard = () => {
                   {importingColleges ? "Importing..." : "Import Gujarat Colleges Data"}
                 </Button>
               </div>
-              
               <Separator className="my-4" />
-              
               <div>
                 <h3 className="text-lg font-medium mb-2">Sample Engineering Cutoffs</h3>
                 <p className="text-sm text-gray-500 mb-4">
@@ -677,9 +713,7 @@ const AdminDashboard = () => {
                   Import Engineering Cutoffs (Coming Soon)
                 </Button>
               </div>
-              
               <Separator className="my-4" />
-              
               <div>
                 <h3 className="text-lg font-medium mb-2">Sample Scholarships</h3>
                 <p className="text-sm text-gray-500 mb-4">
