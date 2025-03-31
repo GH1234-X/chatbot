@@ -13,6 +13,7 @@ import ScholarshipsPage from "./pages/scholarships";
 import CollegesByLocationPage from "./pages/colleges-by-location";
 import ProfilePage from "./pages/profile";
 import AboutPage from "./pages/about";
+import AdminDashboardPage from "./pages/admin-dashboard";
 import NotFound from "./pages/not-found";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -30,6 +31,7 @@ function Router() {
           <Route path="/colleges-by-location" component={CollegesByLocationPage} />
           <Route path="/profile" component={ProfilePage} />
           <Route path="/about" component={AboutPage} />
+          <Route path="/admin-dashboard" component={AdminDashboardPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

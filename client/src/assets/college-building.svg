@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Sky Background -->
+  <rect width="800" height="600" fill="#e0f3ff"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="500" width="800" height="100" fill="#50aa50"/>
+  
+  <!-- Main Building -->
+  <rect x="200" y="200" width="400" height="300" fill="#f9f0e6"/>
+  <rect x="200" y="180" width="400" height="20" fill="#d9d0c6"/>
+  
+  <!-- Roof -->
+  <polygon points="400,100 180,180 620,180" fill="#8b4513"/>
+  
+  <!-- Pillars -->
+  <rect x="240" y="200" width="30" height="300" fill="#e0d0c0"/>
+  <rect x="370" y="200" width="30" height="300" fill="#e0d0c0"/>
+  <rect x="530" y="200" width="30" height="300" fill="#e0d0c0"/>
+  <rect x="400" y="200" width="30" height="300" fill="#e0d0c0"/>
+  
+  <!-- Steps -->
+  <rect x="300" y="480" width="200" height="20" fill="#c0c0c0"/>
+  <rect x="310" y="460" width="180" height="20" fill="#d0d0d0"/>
+  <rect x="320" y="440" width="160" height="20" fill="#e0e0e0"/>
+  
+  <!-- Windows -->
+  <rect x="240" y="230" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="240" y="310" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="240" y="390" width="30" height="50" fill="#a0c8f0"/>
+  
+  <rect x="370" y="230" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="370" y="310" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="370" y="390" width="30" height="50" fill="#a0c8f0"/>
+  
+  <rect x="400" y="230" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="400" y="310" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="400" y="390" width="30" height="50" fill="#a0c8f0"/>
+  
+  <rect x="530" y="230" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="530" y="310" width="30" height="50" fill="#a0c8f0"/>
+  <rect x="530" y="390" width="30" height="50" fill="#a0c8f0"/>
+  
+  <!-- Door -->
+  <rect x="350" y="400" width="100" height="100" fill="#8b4513"/>
+  <rect x="385" y="440" width="30" height="60" fill="#4a2500"/>
+  
+  <!-- Flag -->
+  <rect x="395" y="110" width="5" height="70" fill="#808080"/>
+  <polygon points="400,110 440,120 400,130" fill="#ff5050"/>
+  
+  <!-- College Name Banner -->
+  <rect x="280" y="160" width="240" height="30" fill="#4b2e83"/>
+  <text x="400" y="182" font-family="Arial" font-size="18" text-anchor="middle" fill="white">GUJARAT COLLEGE</text>
+  
+  <!-- Trees -->
+  <ellipse cx="150" cy="480" rx="30" ry="80" fill="#228B22"/>
+  <ellipse cx="650" cy="480" rx="30" ry="80" fill="#228B22"/>
+  <rect x="145" y="480" width="10" height="50" fill="#8B4513"/>
+  <rect x="645" y="480" width="10" height="50" fill="#8B4513"/>
+  
+  <!-- Pathway -->
+  <path d="M350,500 Q400,520 450,500 L450,550 Q400,570 350,550 Z" fill="#c0c0c0"/>
+</svg>

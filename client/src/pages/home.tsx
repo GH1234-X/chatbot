@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import AuthModal from "@/components/AuthModal";
 import FirebaseAuthInstructions from "@/components/FirebaseAuthInstructions";
+import collegeBuilding from "../assets/college-building.svg";
 
 const HomePage = () => {
   const { currentUser } = useAuth();
@@ -81,9 +82,9 @@ const HomePage = () => {
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
           <img
-            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-            src="https://images.unsplash.com/photo-1595586926450-378331e9169c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1471&q=80"
-            alt="College building"
+            className="h-56 w-full object-contain sm:h-72 md:h-96 lg:w-full lg:h-full"
+            src={collegeBuilding}
+            alt="Gujarat College building"
           />
         </div>
       </div>
