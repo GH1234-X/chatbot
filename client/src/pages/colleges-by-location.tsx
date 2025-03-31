@@ -6,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { populateColleges } from "@/utils/populate-colleges";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 interface College {
   id: string;
@@ -32,12 +35,53 @@ const gujaratDistricts = [
 const collegeTypes = ["Engineering", "Medical", "Arts", "Commerce", "Science", "Law", "Pharmacy", "Management"];
 
 const CollegesByLocation = () => {
+  const { currentUser } = useAuth();
   const [colleges, setColleges] = useState<College[]>([]);
   const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
+
+  // For demonstration purposes, we'll consider admin emails
+  const isAdmin = currentUser?.email === "admin@example.com" || 
+                 currentUser?.email === "parinp157@gmail.com";
+
+  // Function to handle populating the database with colleges data
+  const handlePopulateColleges = async () => {
+    if (!isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to perform this action.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setImporting(true);
+      const addedCount = await populateColleges();
+      
+      toast({
+        title: "Success!",
+        description: `Successfully added ${addedCount} colleges to the database.`,
+        variant: "default"
+      });
+      
+      // Refresh the colleges list
+      window.location.reload();
+    } catch (error) {
+      console.error("Error populating colleges:", error);
+      toast({
+        title: "Error",
+        description: "Failed to populate colleges data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
 
   // Fetch colleges data
   useEffect(() => {
@@ -180,9 +224,23 @@ const CollegesByLocation = () => {
           </div>
         </div>
         
-        {/* Results count */}
-        <div className="text-sm text-gray-500 mb-4">
-          Showing {filteredColleges.length} of {colleges.length} colleges
+        {/* Results count and admin import button */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div className="text-sm text-gray-500">
+            Showing {filteredColleges.length} of {colleges.length} colleges
+          </div>
+          
+          {isAdmin && (
+            <Button 
+              onClick={handlePopulateColleges} 
+              disabled={importing}
+              variant="outline"
+              size="sm"
+              className="ml-auto"
+            >
+              {importing ? 'Importing...' : 'Import Gujarat Colleges'}
+            </Button>
+          )}
         </div>
       </div>
       

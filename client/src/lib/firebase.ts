@@ -10,7 +10,7 @@ import {
   updateProfile as firebaseUpdateProfile,
   User as FirebaseUser
 } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp, enableIndexedDbPersistence, writeBatch, doc } from "firebase/firestore";
 import { apiRequest } from "./queryClient";
 
 const firebaseConfig = {
@@ -357,6 +357,108 @@ export const updateProfile = async (user: FirebaseUser, profileData: { displayNa
     return user;
   } catch (error) {
     console.error("Error updating profile:", error);
+    throw error;
+  }
+};
+
+// Gujarat College interface
+export interface FirebaseCollege {
+  id?: string;
+  name: string;
+  location: string;
+  district: string;
+  type: string;  // "Government", "Private", "Aided", etc.
+  website?: string;
+  contactInfo?: string;
+  courses?: string[];
+  description?: string;
+  imageUrl?: string;
+}
+
+// Add a new college to Firestore
+export const addCollege = async (college: Omit<FirebaseCollege, 'id'>): Promise<FirebaseCollege> => {
+  try {
+    const collegesRef = collection(db, "colleges");
+    const docRef = await addDoc(collegesRef, college);
+    
+    return {
+      id: docRef.id,
+      ...college
+    };
+  } catch (error) {
+    console.error("Error adding college to Firebase:", error);
+    throw error;
+  }
+};
+
+// Get colleges from Firestore with optional district filter
+export const getColleges = async (district?: string): Promise<FirebaseCollege[]> => {
+  try {
+    const collegesRef = collection(db, "colleges");
+    let queryRef = query(collegesRef);
+    
+    // Apply district filter if provided
+    if (district && district !== "all") {
+      queryRef = query(queryRef, where("district", "==", district));
+    }
+    
+    const querySnapshot = await getDocs(queryRef);
+    const colleges: FirebaseCollege[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      colleges.push({
+        id: doc.id,
+        ...doc.data() as Omit<FirebaseCollege, 'id'>
+      });
+    });
+    
+    return colleges;
+  } catch (error) {
+    console.error("Error fetching colleges from Firebase:", error);
+    throw error;
+  }
+};
+
+// Get unique districts from Firestore colleges collection
+export const getUniqueDistricts = async (): Promise<string[]> => {
+  try {
+    const collegesRef = collection(db, "colleges");
+    const querySnapshot = await getDocs(collegesRef);
+    const districts = new Set<string>();
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.district) {
+        districts.add(data.district);
+      }
+    });
+    
+    return Array.from(districts).sort();
+  } catch (error) {
+    console.error("Error fetching unique districts from Firebase:", error);
+    throw error;
+  }
+};
+
+// Function to add multiple colleges at once (for admin use)
+export const addMultipleColleges = async (colleges: Omit<FirebaseCollege, 'id'>[]): Promise<number> => {
+  try {
+    const collegesRef = collection(db, "colleges");
+    let addedCount = 0;
+    
+    // Using a batch write for better performance with multiple documents
+    const batch = writeBatch(db);
+    
+    colleges.forEach((college) => {
+      const docRef = doc(collegesRef);
+      batch.set(docRef, college);
+      addedCount++;
+    });
+    
+    await batch.commit();
+    return addedCount;
+  } catch (error) {
+    console.error("Error adding multiple colleges to Firebase:", error);
     throw error;
   }
 };
