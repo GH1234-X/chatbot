@@ -68,7 +68,7 @@ const ChatPage = () => {
       // Add welcome message if no messages
       const welcomeMessage = {
         id: 0,
-        content: "Hi there! I'm StudyAI, your educational assistant. I can help with academic questions, scholarship information, and college cutoffs. What would you like to know today?",
+        content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
         isUserMessage: false,
         timestamp: new Date(),
       };
@@ -184,7 +184,7 @@ const ChatPage = () => {
         <Card className="shadow-lg">
           <CardHeader className="bg-primary text-white">
             <CardTitle className="text-lg font-medium flex items-center justify-between">
-              StudyAI Chat
+              Gujarat College Admissions Assistant
               <Button variant="ghost" size="icon" className="text-white hover:text-primary-200">
                 <i className="fas fa-info-circle"></i>
               </Button>
@@ -294,33 +294,33 @@ const ChatPage = () => {
               variant="outline" 
               size="sm" 
               className="text-xs bg-white border border-gray-300 rounded-full px-3 py-1"
-              onClick={() => handleQuickQuery("Scholarship deadlines this month")}
+              onClick={() => handleQuickQuery("Gujarat University admission requirements")}
             >
-              Scholarship deadlines this month
+              Gujarat University admission requirements
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               className="text-xs bg-white border border-gray-300 rounded-full px-3 py-1"
-              onClick={() => handleQuickQuery("MIT admission requirements")}
+              onClick={() => handleQuickQuery("GUJCET exam details and dates")}
             >
-              MIT admission requirements
+              GUJCET exam details and dates
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               className="text-xs bg-white border border-gray-300 rounded-full px-3 py-1"
-              onClick={() => handleQuickQuery("Computer Science careers")}
+              onClick={() => handleQuickQuery("Top engineering colleges in Gujarat")}
             >
-              Computer Science careers
+              Top engineering colleges in Gujarat
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               className="text-xs bg-white border border-gray-300 rounded-full px-3 py-1"
-              onClick={() => handleQuickQuery("How to write a personal statement")}
+              onClick={() => handleQuickQuery("Medical college cutoffs in Gujarat")}
             >
-              How to write a personal statement
+              Medical college cutoffs in Gujarat
             </Button>
           </div>
         </div>

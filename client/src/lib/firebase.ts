@@ -9,6 +9,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
+import { getFirestore, collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { apiRequest } from "./queryClient";
 
 const firebaseConfig = {
@@ -21,6 +22,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Register user with email and password
@@ -100,4 +102,118 @@ export const subscribeToAuthChanges = (callback: (user: FirebaseUser | null) => 
   return onAuthStateChanged(auth, callback);
 };
 
-export { auth };
+// Firestore college cutoffs functions
+export interface FirebaseCollegeCutoff {
+  id?: string;
+  university: string;
+  program: string;
+  country: string;
+  gpa: string;
+  testScores: string;
+  acceptanceRate: string;
+  academicYear: string;
+}
+
+// Fetch college cutoffs from Firestore
+export const getCollegeCutoffs = async (filters?: Partial<FirebaseCollegeCutoff>): Promise<FirebaseCollegeCutoff[]> => {
+  try {
+    const cutoffsCollectionRef = collection(db, "collegeCutoffs");
+    let queryRef = query(cutoffsCollectionRef);
+    
+    // Apply filters if they exist
+    if (filters) {
+      if (filters.university) {
+        queryRef = query(queryRef, where("university", "==", filters.university));
+      }
+      if (filters.program) {
+        queryRef = query(queryRef, where("program", "==", filters.program));
+      }
+      if (filters.country) {
+        queryRef = query(queryRef, where("country", "==", filters.country));
+      }
+      if (filters.academicYear) {
+        queryRef = query(queryRef, where("academicYear", "==", filters.academicYear));
+      }
+    }
+    
+    const querySnapshot = await getDocs(queryRef);
+    const cutoffs: FirebaseCollegeCutoff[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      cutoffs.push({
+        id: doc.id,
+        ...doc.data() as Omit<FirebaseCollegeCutoff, 'id'>
+      });
+    });
+    
+    return cutoffs;
+  } catch (error) {
+    console.error("Error fetching college cutoffs from Firebase:", error);
+    throw error;
+  }
+};
+
+// Get unique programs from Firestore
+export const getUniquePrograms = async (): Promise<string[]> => {
+  try {
+    const cutoffsCollectionRef = collection(db, "collegeCutoffs");
+    const querySnapshot = await getDocs(cutoffsCollectionRef);
+    const programs = new Set<string>();
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.program) {
+        programs.add(data.program);
+      }
+    });
+    
+    return Array.from(programs).sort();
+  } catch (error) {
+    console.error("Error fetching unique programs from Firebase:", error);
+    throw error;
+  }
+};
+
+// Get unique universities from Firestore
+export const getUniqueUniversities = async (): Promise<string[]> => {
+  try {
+    const cutoffsCollectionRef = collection(db, "collegeCutoffs");
+    const querySnapshot = await getDocs(cutoffsCollectionRef);
+    const universities = new Set<string>();
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.university) {
+        universities.add(data.university);
+      }
+    });
+    
+    return Array.from(universities).sort();
+  } catch (error) {
+    console.error("Error fetching unique universities from Firebase:", error);
+    throw error;
+  }
+};
+
+// Get unique countries from Firestore
+export const getUniqueCountries = async (): Promise<string[]> => {
+  try {
+    const cutoffsCollectionRef = collection(db, "collegeCutoffs");
+    const querySnapshot = await getDocs(cutoffsCollectionRef);
+    const countries = new Set<string>();
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.country) {
+        countries.add(data.country);
+      }
+    });
+    
+    return Array.from(countries).sort();
+  } catch (error) {
+    console.error("Error fetching unique countries from Firebase:", error);
+    throw error;
+  }
+};
+
+export { auth, db };

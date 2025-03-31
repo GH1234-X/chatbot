@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Select,
@@ -17,17 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface CollegeCutoff {
-  id: number;
-  university: string;
-  program: string;
-  country: string;
-  gpa: string;
-  testScores: string;
-  acceptanceRate: string;
-  academicYear: string;
-}
+import {
+  FirebaseCollegeCutoff,
+  getCollegeCutoffs,
+  getUniquePrograms,
+  getUniqueUniversities,
+  getUniqueCountries
+} from "@/lib/firebase";
 
 const CutoffsPage = () => {
   const [country, setCountry] = useState("All");
@@ -35,58 +31,47 @@ const CutoffsPage = () => {
   const [program, setProgram] = useState("All");
   const [academicYear, setAcademicYear] = useState("2023-2024");
 
-  const { data: cutoffs, isLoading } = useQuery({
-    queryKey: ["/api/college-cutoffs", country, university, program, academicYear],
+  // Get cutoffs from Firebase
+  const { data: cutoffs = [], isLoading } = useQuery({
+    queryKey: ["firebase-cutoffs", country, university, program, academicYear],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (country !== "All") params.append("country", country);
-      if (university !== "All") params.append("university", university);
-      if (program !== "All") params.append("program", program);
-      params.append("academicYear", academicYear);
-
-      const res = await fetch(`/api/college-cutoffs?${params.toString()}`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch cutoffs");
-      }
-      return res.json() as Promise<CollegeCutoff[]>;
+      const filters: Partial<FirebaseCollegeCutoff> = {};
+      
+      if (country !== "All") filters.country = country;
+      if (university !== "All") filters.university = university;
+      if (program !== "All") filters.program = program;
+      if (academicYear) filters.academicYear = academicYear;
+      
+      return getCollegeCutoffs(filters);
     },
   });
 
-  // Get all unique programs
-  const { data: programs = ["All"], isLoading: isLoadingPrograms } = useQuery({
-    queryKey: ["/api/college-cutoffs/programs"],
-    queryFn: async () => {
-      const res = await fetch("/api/college-cutoffs/programs");
-      if (!res.ok) {
-        throw new Error("Failed to fetch programs");
-      }
-      return res.json() as Promise<string[]>;
-    },
+  // Get unique programs from Firebase
+  const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
+    queryKey: ["firebase-programs"],
+    queryFn: getUniquePrograms,
   });
+  
+  // Add 'All' option to programs
+  const programs = ["All", ...programsData];
 
-  // Get all unique universities
-  const { data: universities = ["All"], isLoading: isLoadingUniversities } = useQuery({
-    queryKey: ["/api/college-cutoffs/universities"],
-    queryFn: async () => {
-      const res = await fetch("/api/college-cutoffs/universities");
-      if (!res.ok) {
-        throw new Error("Failed to fetch universities");
-      }
-      return res.json() as Promise<string[]>;
-    },
+  // Get unique universities from Firebase
+  const { data: universitiesData = [], isLoading: isLoadingUniversities } = useQuery({
+    queryKey: ["firebase-universities"],
+    queryFn: getUniqueUniversities,
   });
+  
+  // Add 'All' option to universities
+  const universities = ["All", ...universitiesData];
 
-  // Get all unique countries
-  const { data: countries = ["All"], isLoading: isLoadingCountries } = useQuery({
-    queryKey: ["/api/college-cutoffs/countries"],
-    queryFn: async () => {
-      const res = await fetch("/api/college-cutoffs/countries");
-      if (!res.ok) {
-        throw new Error("Failed to fetch countries");
-      }
-      return res.json() as Promise<string[]>;
-    },
+  // Get unique countries from Firebase
+  const { data: countriesData = [], isLoading: isLoadingCountries } = useQuery({
+    queryKey: ["firebase-countries"],
+    queryFn: getUniqueCountries,
   });
+  
+  // Add 'All' option to countries
+  const countries = ["All", ...countriesData];
   
   const academicYears = ["2023-2024", "2022-2023", "2021-2022"];
 
@@ -94,12 +79,12 @@ const CutoffsPage = () => {
     <div className="bg-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:text-center mb-12">
-          <h2 className="text-base text-primary font-semibold tracking-wide uppercase">College Cutoffs</h2>
+          <h2 className="text-base text-primary font-semibold tracking-wide uppercase">Gujarat College Cutoffs</h2>
           <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Admission Requirements Data
+            Gujarat Admission Requirements Data
           </p>
           <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-            Explore cutoff percentages, GPA requirements, and acceptance rates for various universities and programs.
+            Explore cutoff percentages, GPA requirements, and acceptance rates for various universities and programs in Gujarat, India.
           </p>
         </div>
 

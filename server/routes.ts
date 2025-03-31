@@ -157,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const chatRequest: GroqChatRequest = {
         messages,
-        model: "llama2-70b-4096",
+        model: "llama3-8b-8192", // Using LLama3 8B model which is available in Groq
       };
       
       // Make request to Groq API
