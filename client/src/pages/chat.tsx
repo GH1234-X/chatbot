@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessage, prepareChatMessages, getChatCompletion } from "@/lib/groq";
+import { saveChatMessage, getChatMessages, FirebaseChatMessage } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import AuthModal from "@/components/AuthModal";
 
 interface Message {
-  id: number;
+  id: string | number;
   content: string;
   isUserMessage: boolean;
   timestamp: Date;
@@ -22,59 +21,82 @@ const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   
-  // Query for getting saved chat messages
-  const { data: savedMessages, isLoading: isLoadingMessages } = useQuery({
-    queryKey: ["/api/chat/messages", currentUser?.uid],
-    enabled: !!currentUser,
-    queryFn: async () => {
-      const res = await fetch(`/api/chat/messages?userId=${currentUser?.uid}`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-      return res.json();
-    }
-  });
-  
-  // Mutation for saving messages
-  const saveMutation = useMutation({
-    mutationFn: async (message: { content: string; isUserMessage: boolean; userId?: string }) => {
-      return fetch("/api/chat/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: message.content,
-          isUserMessage: message.isUserMessage,
-          userId: currentUser?.uid ? parseInt(currentUser.uid) : undefined,
-        }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/chat/messages", currentUser?.uid] });
-    }
-  });
-  
-  // Load saved messages when they're available
+  // Fetch messages from Firebase when user logs in
   useEffect(() => {
-    if (savedMessages && savedMessages.length > 0) {
-      setMessages(savedMessages);
-    } else if (!isLoadingMessages && messages.length === 0) {
-      // Add welcome message if no messages
-      const welcomeMessage = {
-        id: 0,
-        content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
-        isUserMessage: false,
-        timestamp: new Date(),
-      };
-      setMessages([welcomeMessage]);
-    }
-  }, [savedMessages, isLoadingMessages]);
+    const fetchMessages = async () => {
+      if (!currentUser) {
+        // Add default welcome message for non-logged in users
+        const welcomeMessage = {
+          id: 0,
+          content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+          isUserMessage: false,
+          timestamp: new Date(),
+        };
+        setMessages([welcomeMessage]);
+        return;
+      }
+      
+      setIsLoadingMessages(true);
+      try {
+        const firebaseMessages = await getChatMessages(currentUser.uid);
+        console.log("Firebase messages:", firebaseMessages);
+
+        if (firebaseMessages && firebaseMessages.length > 0) {
+          // Convert Firebase messages to our local format
+          const formattedMessages: Message[] = firebaseMessages.map(msg => ({
+            id: msg.id || Date.now().toString(),
+            content: msg.content,
+            isUserMessage: msg.isUserMessage,
+            timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp),
+          }));
+          
+          setMessages(formattedMessages);
+        } else {
+          // Add welcome message if no messages
+          const welcomeMessage = {
+            id: Date.now().toString(),
+            content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+            isUserMessage: false,
+            timestamp: new Date(),
+          };
+          setMessages([welcomeMessage]);
+          
+          // Save welcome message to Firebase
+          await saveChatMessage({
+            content: welcomeMessage.content,
+            isUserMessage: welcomeMessage.isUserMessage,
+            userId: currentUser.uid
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load chat history. Please try again.",
+          variant: "destructive",
+        });
+        
+        // Still show welcome message if error
+        const welcomeMessage = {
+          id: Date.now().toString(),
+          content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+          isUserMessage: false,
+          timestamp: new Date(),
+        };
+        setMessages([welcomeMessage]);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+    
+    fetchMessages();
+  }, [currentUser, toast]);
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -95,7 +117,7 @@ const ChatPage = () => {
     }
     
     const userMessage = {
-      id: messages.length,
+      id: Date.now(),
       content: input.trim(),
       isUserMessage: true,
       timestamp: new Date(),
@@ -107,11 +129,11 @@ const ChatPage = () => {
     setIsLoading(true);
     
     try {
-      // Save user message
-      await saveMutation.mutateAsync({
+      // Save user message to Firebase
+      await saveChatMessage({
         content: userMessage.content,
         isUserMessage: true,
-        userId: currentUser?.uid,
+        userId: currentUser.uid
       });
       
       // Prepare messages for AI
@@ -135,7 +157,7 @@ const ChatPage = () => {
         
         // Add AI response to UI
         const aiMessage = {
-          id: messages.length + 1,
+          id: Date.now() + 1,
           content: aiResponse,
           isUserMessage: false,
           timestamp: new Date(),
@@ -143,11 +165,11 @@ const ChatPage = () => {
         
         setMessages((prev) => [...prev, aiMessage]);
         
-        // Save AI message
-        await saveMutation.mutateAsync({
+        // Save AI message to Firebase
+        await saveChatMessage({
           content: aiResponse,
           isUserMessage: false,
-          userId: currentUser?.uid,
+          userId: currentUser.uid
         });
       }
     } catch (error) {

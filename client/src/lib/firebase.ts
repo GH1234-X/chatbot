@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from "firebase/auth";
-import { getFirestore, collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, Timestamp, serverTimestamp } from "firebase/firestore";
 import { apiRequest } from "./queryClient";
 
 const firebaseConfig = {
@@ -212,6 +212,80 @@ export const getUniqueCountries = async (): Promise<string[]> => {
     return Array.from(countries).sort();
   } catch (error) {
     console.error("Error fetching unique countries from Firebase:", error);
+    throw error;
+  }
+};
+
+// Chat message interface
+export interface FirebaseChatMessage {
+  id?: string;
+  content: string;
+  isUserMessage: boolean;
+  userId: string;
+  timestamp: any;
+}
+
+// Save chat message to Firebase
+export const saveChatMessage = async (message: Omit<FirebaseChatMessage, 'id' | 'timestamp'>): Promise<FirebaseChatMessage> => {
+  try {
+    const chatMessagesRef = collection(db, "chatMessages");
+    
+    const messageData = {
+      ...message,
+      timestamp: serverTimestamp()
+    };
+    
+    const docRef = await addDoc(chatMessagesRef, messageData);
+    
+    return {
+      id: docRef.id,
+      ...messageData,
+    };
+  } catch (error) {
+    console.error("Error saving chat message to Firebase:", error);
+    throw error;
+  }
+};
+
+// Get chat messages from Firebase for a specific user
+export const getChatMessages = async (userId: string): Promise<FirebaseChatMessage[]> => {
+  try {
+    const chatMessagesRef = collection(db, "chatMessages");
+    const q = query(
+      chatMessagesRef, 
+      where("userId", "==", userId),
+      orderBy("timestamp", "asc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const messages: FirebaseChatMessage[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      // Convert Firebase Timestamp to Date if it exists
+      let messageDate: Date;
+      if (data.timestamp && typeof data.timestamp.toDate === 'function') {
+        messageDate = data.timestamp.toDate();
+      } else if (data.timestamp && data.timestamp.seconds) {
+        // Handle Firestore timestamp that might be serialized
+        messageDate = new Date(data.timestamp.seconds * 1000);
+      } else {
+        // Fallback to current date if no timestamp
+        messageDate = new Date();
+      }
+
+      messages.push({
+        id: doc.id,
+        content: data.content,
+        isUserMessage: data.isUserMessage,
+        userId: data.userId,
+        timestamp: messageDate,
+      });
+    });
+    
+    return messages;
+  } catch (error) {
+    console.error("Error fetching chat messages from Firebase:", error);
     throw error;
   }
 };

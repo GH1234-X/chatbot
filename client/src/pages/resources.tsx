@@ -16,7 +16,7 @@ const ResourcesPage = () => {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="h-48 bg-primary/10 flex items-center justify-center">
               <i className="fas fa-cogs text-6xl text-primary"></i>
@@ -46,6 +46,23 @@ const ResourcesPage = () => {
               <Link href="/resources/scholarships">
                 <Button>
                   Browse Scholarships <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="h-48 bg-primary/10 flex items-center justify-center">
+              <i className="fas fa-map-marker-alt text-6xl text-primary"></i>
+            </div>
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Colleges by Location</h3>
+              <p className="text-gray-600 mb-4">
+                Find colleges in Gujarat based on district, location and program type to discover educational opportunities near you.
+              </p>
+              <Link href="/colleges-by-location">
+                <Button>
+                  Find Colleges <i className="fas fa-arrow-right ml-2"></i>
                 </Button>
               </Link>
             </CardContent>
