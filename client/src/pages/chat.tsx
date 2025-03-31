@@ -26,7 +26,7 @@ const ChatPage = () => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Fetch messages from Firebase when user logs in
   useEffect(() => {
     const fetchMessages = async () => {
@@ -34,14 +34,14 @@ const ChatPage = () => {
         // Add default welcome message for non-logged in users
         const welcomeMessage = {
           id: 0,
-          content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+          content: "Hi there! I'm StudentGuideAI, your intelligent educational assistant. What would you like to know?",
           isUserMessage: false,
           timestamp: new Date(),
         };
         setMessages([welcomeMessage]);
         return;
       }
-      
+
       setIsLoadingMessages(true);
       try {
         const firebaseMessages = await getChatMessages(currentUser.uid);
@@ -55,18 +55,18 @@ const ChatPage = () => {
             isUserMessage: msg.isUserMessage,
             timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp),
           }));
-          
+
           setMessages(formattedMessages);
         } else {
           // Add welcome message if no messages
           const welcomeMessage = {
             id: Date.now().toString(),
-            content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+            content: "Hi there! I'm StudentGuideAI, your intelligent educational assistant. What would you like to know?",
             isUserMessage: false,
             timestamp: new Date(),
           };
           setMessages([welcomeMessage]);
-          
+
           // Save welcome message to Firebase
           await saveChatMessage({
             content: welcomeMessage.content,
@@ -81,11 +81,11 @@ const ChatPage = () => {
           description: "Failed to load chat history. Please try again.",
           variant: "destructive",
         });
-        
+
         // Still show welcome message if error
         const welcomeMessage = {
           id: Date.now().toString(),
-          content: "Hi there! I'm GujaratEduBot, your Gujarat college admissions assistant. I can help with admission requirements, entrance exams, scholarship information, and cutoffs for colleges in Gujarat, India. What would you like to know about Gujarat college admissions today?",
+          content: "Hi there! I'm StudentGuideAI, your intelligent educational assistant. What would you like to know?",
           isUserMessage: false,
           timestamp: new Date(),
         };
@@ -94,40 +94,40 @@ const ChatPage = () => {
         setIsLoadingMessages(false);
       }
     };
-    
+
     fetchMessages();
   }, [currentUser, toast]);
-  
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!input.trim()) return;
-    
+
     // Check if user is logged in
     if (!currentUser) {
       setAuthModalOpen(true);
       return;
     }
-    
+
     const userMessage = {
       id: Date.now(),
       content: input.trim(),
       isUserMessage: true,
       timestamp: new Date(),
     };
-    
+
     // Add user message to UI
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-    
+
     try {
       // Save user message to Firebase
       await saveChatMessage({
@@ -135,26 +135,26 @@ const ChatPage = () => {
         isUserMessage: true,
         userId: currentUser.uid
       });
-      
+
       // Prepare messages for AI
       const chatHistory: ChatMessage[] = messages.map(msg => ({
         role: msg.isUserMessage ? "user" : "assistant",
         content: msg.content
       }));
-      
+
       // Add the new user message
       chatHistory.push({
         role: "user",
         content: userMessage.content
       });
-      
+
       // Get AI response
       const chatMessages = prepareChatMessages(chatHistory);
       const completion = await getChatCompletion(chatMessages);
-      
+
       if (completion && completion.choices && completion.choices.length > 0) {
         const aiResponse = completion.choices[0].message.content;
-        
+
         // Add AI response to UI
         const aiMessage = {
           id: Date.now() + 1,
@@ -162,9 +162,9 @@ const ChatPage = () => {
           isUserMessage: false,
           timestamp: new Date(),
         };
-        
+
         setMessages((prev) => [...prev, aiMessage]);
-        
+
         // Save AI message to Firebase
         await saveChatMessage({
           content: aiResponse,
@@ -183,14 +183,14 @@ const ChatPage = () => {
       setIsLoading(false);
     }
   };
-  
+
   const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as unknown as FormEvent);
     }
   };
-  
+
   const handleQuickQuery = (query: string) => {
     setInput(query);
     // Focus the textarea
@@ -199,7 +199,7 @@ const ChatPage = () => {
       textarea.focus();
     }
   };
-  
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-3xl mx-auto">
@@ -212,7 +212,7 @@ const ChatPage = () => {
               </Button>
             </CardTitle>
           </CardHeader>
-          
+
           <CardContent className="p-0">
             {/* Chat messages container */}
             <div 
@@ -271,7 +271,7 @@ const ChatPage = () => {
                   </div>
                 ))
               )}
-              
+
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex items-center justify-center py-2">
@@ -283,7 +283,7 @@ const ChatPage = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Chat input area */}
             <div className="px-4 py-3 bg-white border-t">
               <form onSubmit={handleSubmit} className="flex items-center space-x-2">
@@ -307,7 +307,7 @@ const ChatPage = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         {/* Recent queries suggestions */}
         <div className="mt-6">
           <h4 className="text-sm font-medium text-gray-500 mb-3">Quick Queries</h4>

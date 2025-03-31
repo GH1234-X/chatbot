@@ -98,7 +98,7 @@ const HomePage = () => {
               Everything you need for academic success
             </p>
             <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              StudyAI combines AI-powered assistance with comprehensive academic resources to help you excel.
+              StudentGuideAI combines AI-powered assistance with comprehensive academic resources to help you excel.
             </p>
           </div>
 

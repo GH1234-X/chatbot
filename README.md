@@ -1,4 +1,4 @@
-# Gujarat College Advisor - Educational Chatbot
+# StudentGuideAI - Educational Assistant
 
 An AI-powered educational assistant focused on helping students with Gujarat college admissions.
 
