@@ -1,0 +1,46 @@
+PS C:\Users\patel\OneDrive\Desktop\F-SGP\AiChatCompanion> npm run build
+   
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.14 building for production...
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "crypto" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 1775 modules transformed.
+../dist/public/index.html                     1.95 kB │ gzip:   0.82 kB
+../dist/public/assets/index-oh0cSX8_.css     84.22 kB │ gzip:  13.78 kB
+../dist/public/assets/index-kqmeXx2d.js   1,001.22 kB │ gzip: 267.02 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.43s
+
+  dist\index.js  18.3kb
+
+Done in 10ms
+PS C:\Users\patel\OneDrive\Desktop\F-SGP\AiChatCompanion> npm run build
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.14 building for production...
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "os" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "crypto" has been externalized for browser compatibility, imported by "C:/Users/patel/OneDrive/Desktop/F-SGP/AiChatCompanion/node_modules/dotenv/lib/main.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 1775 modules transformed.
+../dist/public/index.html                     1.95 kB │ gzip:   0.82 kB
+../dist/public/assets/index-oh0cSX8_.css     84.22 kB │ gzip:  13.78 kB
+../dist/public/assets/index-C_VQOxw9.js   1,001.26 kB │ gzip: 267.03 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.29s
+
+  dist\index.js  18.3kb
+
+Done in 9ms
