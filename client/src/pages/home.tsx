@@ -156,40 +156,42 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            <span className="block">Ready to get started?</span>
-            <span className="block text-primary">Create your free account today.</span>
-          </h2>
-          <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-            <div className="inline-flex rounded-md shadow">
-              <Button
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white"
-                onClick={() => {
-                  setIsLogin(false);
-                  setAuthModalOpen(true);
-                }}
-              >
-                Sign up for free
-              </Button>
-            </div>
-            <div className="ml-3 inline-flex rounded-md shadow">
-              <Button
-                variant="outline"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md"
-                onClick={() => {
-                  setIsLogin(true);
-                  setAuthModalOpen(true);
-                }}
-              >
-                Learn more
-              </Button>
+      {/* CTA Section - Only shown when not logged in */}
+      {!currentUser && (
+        <div className="bg-white">
+          <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              <span className="block">Ready to get started?</span>
+              <span className="block text-primary">Create your free account today.</span>
+            </h2>
+            <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+              <div className="inline-flex rounded-md shadow">
+                <Button
+                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white"
+                  onClick={() => {
+                    setIsLogin(false);
+                    setAuthModalOpen(true);
+                  }}
+                >
+                  Sign up for free
+                </Button>
+              </div>
+              <div className="ml-3 inline-flex rounded-md shadow">
+                <Button
+                  variant="outline"
+                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md"
+                  onClick={() => {
+                    setIsLogin(true);
+                    setAuthModalOpen(true);
+                  }}
+                >
+                  Learn more
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Auth Modal */}
       <AuthModal
