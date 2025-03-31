@@ -30,6 +30,9 @@ export interface IStorage {
   // College cutoffs operations
   getCollegeCutoffs(filters?: Partial<CollegeCutoff>): Promise<CollegeCutoff[]>;
   createCollegeCutoff(cutoff: InsertCollegeCutoff): Promise<CollegeCutoff>;
+  getUniqueCollegeCutoffPrograms(): Promise<string[]>;
+  getUniqueCollegeCutoffUniversities(): Promise<string[]>;
+  getUniqueCollegeCutoffCountries(): Promise<string[]>;
   
   // Scholarship operations
   getScholarships(filters?: Partial<Scholarship>): Promise<Scholarship[]>;
@@ -55,6 +58,109 @@ export class MemStorage implements IStorage {
     this.messageId = 1;
     this.cutoffId = 1;
     this.scholarshipId = 1;
+    
+    // Seed college cutoffs with sample data
+    this.seedCollegeCutoffs();
+  }
+  
+  private seedCollegeCutoffs() {
+    const sampleCutoffs: InsertCollegeCutoff[] = [
+      {
+        university: "Harvard University",
+        program: "Computer Science",
+        country: "United States",
+        gpa: "3.9+",
+        testScores: "SAT: 1550+",
+        acceptanceRate: "5%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "Stanford University",
+        program: "Computer Science",
+        country: "United States",
+        gpa: "3.9+",
+        testScores: "SAT: 1500+",
+        acceptanceRate: "4%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "MIT",
+        program: "Computer Science",
+        country: "United States",
+        gpa: "3.9+",
+        testScores: "SAT: 1540+",
+        acceptanceRate: "7%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "Oxford University",
+        program: "Computer Science",
+        country: "United Kingdom",
+        gpa: "3.8+",
+        testScores: "A* A* A",
+        acceptanceRate: "15%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "University of Toronto",
+        program: "Computer Science",
+        country: "Canada",
+        gpa: "3.7+",
+        testScores: "90%+",
+        acceptanceRate: "25%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "Stanford University",
+        program: "Medicine",
+        country: "United States",
+        gpa: "3.9+",
+        testScores: "MCAT: 518+",
+        acceptanceRate: "2%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "Harvard University",
+        program: "Business",
+        country: "United States",
+        gpa: "3.8+",
+        testScores: "GMAT: 730+",
+        acceptanceRate: "10%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "University of Melbourne",
+        program: "Engineering",
+        country: "Australia",
+        gpa: "3.5+",
+        testScores: "ATAR: 95+",
+        acceptanceRate: "30%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "University of British Columbia",
+        program: "Computer Science",
+        country: "Canada",
+        gpa: "3.6+",
+        testScores: "85%+",
+        acceptanceRate: "20%",
+        academicYear: "2023-2024"
+      },
+      {
+        university: "Imperial College London",
+        program: "Engineering",
+        country: "United Kingdom",
+        gpa: "3.7+",
+        testScores: "A* A A",
+        acceptanceRate: "12%",
+        academicYear: "2023-2024"
+      }
+    ];
+    
+    // Add each sample cutoff to the storage
+    sampleCutoffs.forEach(cutoff => {
+      this.createCollegeCutoff(cutoff);
+    });
   }
 
   // User operations
@@ -124,6 +230,57 @@ export class MemStorage implements IStorage {
     const collegeCutoff: CollegeCutoff = { ...cutoff, id };
     this.cutoffs.set(id, collegeCutoff);
     return collegeCutoff;
+  }
+  
+  async getUniqueCollegeCutoffPrograms(): Promise<string[]> {
+    const allCutoffs = Array.from(this.cutoffs.values());
+    const uniquePrograms = new Set<string>();
+    
+    // Add "All" as the first option
+    uniquePrograms.add("All");
+    
+    // Add all unique programs from the cutoffs
+    allCutoffs.forEach(cutoff => {
+      if (cutoff.program) {
+        uniquePrograms.add(cutoff.program);
+      }
+    });
+    
+    return Array.from(uniquePrograms);
+  }
+  
+  async getUniqueCollegeCutoffUniversities(): Promise<string[]> {
+    const allCutoffs = Array.from(this.cutoffs.values());
+    const uniqueUniversities = new Set<string>();
+    
+    // Add "All" as the first option
+    uniqueUniversities.add("All");
+    
+    // Add all unique universities from the cutoffs
+    allCutoffs.forEach(cutoff => {
+      if (cutoff.university) {
+        uniqueUniversities.add(cutoff.university);
+      }
+    });
+    
+    return Array.from(uniqueUniversities);
+  }
+  
+  async getUniqueCollegeCutoffCountries(): Promise<string[]> {
+    const allCutoffs = Array.from(this.cutoffs.values());
+    const uniqueCountries = new Set<string>();
+    
+    // Add "All" as the first option
+    uniqueCountries.add("All");
+    
+    // Add all unique countries from the cutoffs
+    allCutoffs.forEach(cutoff => {
+      if (cutoff.country) {
+        uniqueCountries.add(cutoff.country);
+      }
+    });
+    
+    return Array.from(uniqueCountries);
   }
 
   // Scholarship operations

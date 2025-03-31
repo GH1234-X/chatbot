@@ -52,10 +52,42 @@ const CutoffsPage = () => {
     },
   });
 
-  // These would typically come from the database
-  const countries = ["All", "United States", "Canada", "United Kingdom", "Australia"];
-  const universities = ["All", "Harvard University", "Stanford University", "MIT", "California Institute of Technology"];
-  const programs = ["All", "Computer Science", "Engineering", "Business", "Medicine"];
+  // Get all unique programs
+  const { data: programs = ["All"], isLoading: isLoadingPrograms } = useQuery({
+    queryKey: ["/api/college-cutoffs/programs"],
+    queryFn: async () => {
+      const res = await fetch("/api/college-cutoffs/programs");
+      if (!res.ok) {
+        throw new Error("Failed to fetch programs");
+      }
+      return res.json() as Promise<string[]>;
+    },
+  });
+
+  // Get all unique universities
+  const { data: universities = ["All"], isLoading: isLoadingUniversities } = useQuery({
+    queryKey: ["/api/college-cutoffs/universities"],
+    queryFn: async () => {
+      const res = await fetch("/api/college-cutoffs/universities");
+      if (!res.ok) {
+        throw new Error("Failed to fetch universities");
+      }
+      return res.json() as Promise<string[]>;
+    },
+  });
+
+  // Get all unique countries
+  const { data: countries = ["All"], isLoading: isLoadingCountries } = useQuery({
+    queryKey: ["/api/college-cutoffs/countries"],
+    queryFn: async () => {
+      const res = await fetch("/api/college-cutoffs/countries");
+      if (!res.ok) {
+        throw new Error("Failed to fetch countries");
+      }
+      return res.json() as Promise<string[]>;
+    },
+  });
+  
   const academicYears = ["2023-2024", "2022-2023", "2021-2022"];
 
   return (
@@ -161,7 +193,7 @@ const CutoffsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {isLoading || isLoadingPrograms || isLoadingUniversities || isLoadingCountries ? (
                 Array(4).fill(0).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell><Skeleton className="h-5 w-40" /></TableCell>

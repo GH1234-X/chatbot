@@ -90,6 +90,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch college cutoffs" });
     }
   });
+  
+  // Get unique programs from college cutoffs
+  app.get("/api/college-cutoffs/programs", async (req: Request, res: Response) => {
+    try {
+      const uniquePrograms = await storage.getUniqueCollegeCutoffPrograms();
+      res.json(uniquePrograms);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch unique programs" });
+    }
+  });
+  
+  // Get unique universities from college cutoffs
+  app.get("/api/college-cutoffs/universities", async (req: Request, res: Response) => {
+    try {
+      const uniqueUniversities = await storage.getUniqueCollegeCutoffUniversities();
+      res.json(uniqueUniversities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch unique universities" });
+    }
+  });
+  
+  // Get unique countries from college cutoffs
+  app.get("/api/college-cutoffs/countries", async (req: Request, res: Response) => {
+    try {
+      const uniqueCountries = await storage.getUniqueCollegeCutoffCountries();
+      res.json(uniqueCountries);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch unique countries" });
+    }
+  });
 
   // Scholarships
   app.get("/api/scholarships", async (req: Request, res: Response) => {
