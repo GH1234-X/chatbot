@@ -1,0 +1,48 @@
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/home";
+import ChatPage from "./pages/chat";
+import ResourcesPage from "./pages/resources";
+import CutoffsPage from "./pages/cutoffs";
+import ScholarshipsPage from "./pages/scholarships";
+import AboutPage from "./pages/about";
+import NotFound from "./pages/not-found";
+import { AuthProvider } from "./context/AuthContext";
+
+function Router() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        <Switch>
+          <Route path="/" component={HomePage} />
+          <Route path="/chat" component={ChatPage} />
+          <Route path="/resources" component={ResourcesPage} />
+          <Route path="/resources/cutoffs" component={CutoffsPage} />
+          <Route path="/resources/scholarships" component={ScholarshipsPage} />
+          <Route path="/about" component={AboutPage} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
