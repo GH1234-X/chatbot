@@ -259,7 +259,7 @@ const CollegesByLocation = () => {
                 <Skeleton className="h-4 w-3/4" />
               </CardContent>
               <CardFooter>
-                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-1/3 ml-auto" />
               </CardFooter>
             </Card>
           ))}
@@ -294,18 +294,15 @@ const CollegesByLocation = () => {
                   {college.description || `${college.name} is a leading institution in ${college.district} district of Gujarat, offering various courses and programs to students.`}
                 </p>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" size="sm">
-                  View Details
-                </Button>
-                {college.website && (
+              {college.website && (
+                <CardFooter className="flex justify-end">
                   <Button variant="ghost" size="sm" asChild>
                     <a href={college.website} target="_blank" rel="noopener noreferrer">
                       Visit Website
                     </a>
                   </Button>
-                )}
-              </CardFooter>
+                </CardFooter>
+              )}
             </Card>
           ))}
         </div>
