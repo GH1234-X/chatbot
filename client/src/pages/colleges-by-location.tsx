@@ -92,10 +92,16 @@ const CollegesByLocation = () => {
         const q = query(collegesRef, orderBy("name"));
         const querySnapshot = await getDocs(q);
         
-        const collegesList: College[] = [];
+        // Use a Map to deduplicate colleges by name
+        const uniqueColleges = new Map();
         querySnapshot.forEach((doc) => {
-          collegesList.push({ id: doc.id, ...doc.data() } as College);
+          const college = { id: doc.id, ...doc.data() } as College;
+          if (!uniqueColleges.has(college.name)) {
+            uniqueColleges.set(college.name, college);
+          }
         });
+        
+        const collegesList = Array.from(uniqueColleges.values());
         
         // If no colleges in Firebase yet, use sample data
         if (collegesList.length === 0) {
