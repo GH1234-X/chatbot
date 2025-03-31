@@ -7,59 +7,59 @@ const Footer = () => {
         <nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
           <div className="px-5 py-2">
             <Link href="/about">
-              <a className="text-base text-gray-500 hover:text-gray-900">
+              <span className="text-base text-gray-500 hover:text-gray-900 cursor-pointer">
                 About
-              </a>
+              </span>
             </Link>
           </div>
 
           <div className="px-5 py-2">
-            <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+            <span className="text-base text-gray-500 hover:text-gray-900 cursor-pointer">
               Blog
-            </a>
+            </span>
           </div>
 
           <div className="px-5 py-2">
-            <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+            <span className="text-base text-gray-500 hover:text-gray-900 cursor-pointer">
               Contact
-            </a>
+            </span>
           </div>
 
           <div className="px-5 py-2">
-            <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+            <span className="text-base text-gray-500 hover:text-gray-900 cursor-pointer">
               Privacy
-            </a>
+            </span>
           </div>
 
           <div className="px-5 py-2">
-            <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+            <span className="text-base text-gray-500 hover:text-gray-900 cursor-pointer">
               Terms
-            </a>
+            </span>
           </div>
         </nav>
         <div className="mt-8 flex justify-center space-x-6">
-          <a href="#" className="text-gray-400 hover:text-gray-500">
+          <span className="text-gray-400 hover:text-gray-500 cursor-pointer">
             <span className="sr-only">Facebook</span>
             <i className="fab fa-facebook-f"></i>
-          </a>
+          </span>
 
-          <a href="#" className="text-gray-400 hover:text-gray-500">
+          <span className="text-gray-400 hover:text-gray-500 cursor-pointer">
             <span className="sr-only">Instagram</span>
             <i className="fab fa-instagram"></i>
-          </a>
+          </span>
 
-          <a href="#" className="text-gray-400 hover:text-gray-500">
+          <span className="text-gray-400 hover:text-gray-500 cursor-pointer">
             <span className="sr-only">Twitter</span>
             <i className="fab fa-twitter"></i>
-          </a>
+          </span>
 
-          <a href="#" className="text-gray-400 hover:text-gray-500">
+          <span className="text-gray-400 hover:text-gray-500 cursor-pointer">
             <span className="sr-only">LinkedIn</span>
             <i className="fab fa-linkedin-in"></i>
-          </a>
+          </span>
         </div>
         <p className="mt-8 text-center text-base text-gray-400">
-          &copy; {new Date().getFullYear()} StudyAI. All rights reserved.
+          &copy; 2025 StudyAI. All rights reserved.
         </p>
       </div>
     </footer>
